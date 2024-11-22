@@ -89,7 +89,7 @@ public sealed class IniStreamParser
         bool inComment = false;
         char c;
         do {
-            if (!TryRead(out c))
+            if (!TryReadChar(out c))
                 return Token.EndOfFile;
             inComment = inComment ? c != '\n' : c == '#';
         } while (inComment || char.IsWhiteSpace(c));
@@ -103,7 +103,7 @@ public sealed class IniStreamParser
                 return Token.BracketClose;
             case '"': {
                 bool inEscape = false;
-                while (TryRead(out c)) {
+                while (TryReadChar(out c)) {
                     if (inEscape) {
                         valueToken.Add(c);
                         inEscape = false;
@@ -120,7 +120,7 @@ public sealed class IniStreamParser
             }
             default:
                 valueToken.Add(c);
-                while (TryReadIdentifier(out c))
+                while (TryReadIdentifierChar(out c))
                     valueToken.Add(c);
 
                 return Token.Identifier;
@@ -132,13 +132,13 @@ public sealed class IniStreamParser
             return ic != -1;
         }
 
-        bool TryRead(out char c)
+        bool TryReadChar(out char c)
         {
             _cursor++;
             return TryToChar(_reader.Read(), out c);
         }
 
-        bool TryReadIdentifier(out char c)
+        bool TryReadIdentifierChar(out char c)
         {
             if (TryToChar(_reader.Peek(), out c) && !char.IsWhiteSpace(c) && c != '[' && c != ']' && c != '=' && c != '"' && c != '#')
             {
